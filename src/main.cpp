@@ -17,8 +17,8 @@
 #define MAX_HISTORY 20
 
 // ── Konfigurasi WiFi ───────────────────────────────────────
-const char *ssid = "Wokwi-GUEST";
-const char *password = "";
+const char *ssid = "OPPO RENO 6 5G";   
+const char *password = "27072005";
 
 // ── Konfigurasi Telegram ───────────────────────────────────
 const char *botToken = "8889124546:AAGO2dQGqGvHhcSTWQMt2csq1CbUwzn_hlQ";
@@ -36,7 +36,7 @@ String statusBanjir = "NORMAL";
 String prevStatus = "NORMAL";
 
 unsigned long prevSensorMillis = 0;
-const long sensorInterval = 1000; // Baca sensor setiap 1 detik
+const long sensorInterval = 1000;
 
 unsigned long prevBuzzerMillis = 0;
 bool buzzerState = false;
@@ -102,7 +102,7 @@ String escapeJson(String s)
   return s;
 }
 
-// ── Kirim notifikasi Telegram (POST + JSON) ────────────────
+// ── Kirim notifikasi Telegram ──────────────────────────────
 void sendTelegram(String pesan)
 {
   if (WiFi.status() != WL_CONNECTED)
@@ -137,15 +137,10 @@ void sendTelegram(String pesan)
 
   if (httpCode > 0)
   {
-    String resp = http.getString();
     if (httpCode == 200)
-    {
       Serial.println("[Telegram] Pesan berhasil terkirim!");
-    }
     else
-    {
       Serial.println("[Telegram] Pesan gagal — cek token & chat_id.");
-    }
   }
   else
   {
@@ -211,7 +206,7 @@ void selesaiEvent()
   }
 }
 
-// ── JSON histori untuk /history ────────────────────────────
+// ── JSON histori ───────────────────────────────────────────
 void handleHistory()
 {
   String json = "[";
@@ -438,27 +433,21 @@ function updateStatus(jarak, status) {
   var bar = document.getElementById('status-bar');
 
   if (status === 'BAHAYA') {
-    label.style.color = '#e53935';
-    label.textContent = 'BAHAYA';
+    label.style.color = '#e53935'; label.textContent = 'BAHAYA';
     sub.textContent = 'Ketinggian air kritis - evakuasi segera!';
-    badge.style.color = '#e53935';
-    badge.textContent = 'BAHAYA';
+    badge.style.color = '#e53935'; badge.textContent = 'BAHAYA';
     bar.style.borderColor = '#e53935';
     addLog('BAHAYA - Jarak: ' + jarak + ' cm');
   } else if (status === 'SIAGA') {
-    label.style.color = '#f9a825';
-    label.textContent = 'SIAGA';
+    label.style.color = '#f9a825'; label.textContent = 'SIAGA';
     sub.textContent = 'Ketinggian air mendekati batas - waspada!';
-    badge.style.color = '#f9a825';
-    badge.textContent = 'SIAGA';
+    badge.style.color = '#f9a825'; badge.textContent = 'SIAGA';
     bar.style.borderColor = '#f9a825';
     addLog('SIAGA - Jarak: ' + jarak + ' cm');
   } else {
-    label.style.color = '#00c853';
-    label.textContent = 'NORMAL';
+    label.style.color = '#00c853'; label.textContent = 'NORMAL';
     sub.textContent = 'Ketinggian air dalam batas aman';
-    badge.style.color = '#00c853';
-    badge.textContent = 'AMAN';
+    badge.style.color = '#00c853'; badge.textContent = 'AMAN';
     bar.style.borderColor = '#00c853';
   }
   updateLED(status);
@@ -467,16 +456,11 @@ function updateStatus(jarak, status) {
 function renderHistory(data) {
   var container = document.getElementById('history-list');
   var badge = document.getElementById('hist-count-badge');
-
   if (!data || data.length === 0) {
     container.innerHTML = '<div class="history-empty">Belum ada kejadian banjir tercatat.</div>';
-    badge.style.display = 'none';
-    return;
+    badge.style.display = 'none'; return;
   }
-
-  badge.style.display = 'inline';
-  badge.textContent = data.length;
-
+  badge.style.display = 'inline'; badge.textContent = data.length;
   var html = '';
   for (var i = 0; i < data.length; i++) {
     var item = data[i];
@@ -534,11 +518,7 @@ setInterval(fetchHistory, 5000);
 </html>
 )rawliteral";
 
-void handleRoot()
-{
-  server.send(200, "text/html", index_html);
-}
-
+void handleRoot() { server.send(200, "text/html", index_html); }
 void handleData()
 {
   String json = "{\"jarak\":" + String(distance, 1) + ",\"status\":\"" + statusBanjir + "\"}";
@@ -559,6 +539,7 @@ void setup()
   digitalWrite(LED_MERAH, LOW);
   digitalWrite(LED_KUNING, LOW);
   digitalWrite(LED_HIJAU, LOW);
+  digitalWrite(BUZZER_PIN, LOW);
 
   // Koneksi WiFi
   WiFi.begin(ssid, password);
@@ -587,13 +568,10 @@ void setup()
   while (!getLocalTime(&ti) && ntpRetry < 10)
   {
     delay(500);
-    Serial.print(".");
     ntpRetry++;
   }
   if (ntpRetry < 10)
-  {
-    Serial.println("\nWaktu tersinkron: " + getTanggalStr() + " " + getWaktuStr());
-  }
+    Serial.println("Waktu tersinkron: " + getTanggalStr() + " " + getWaktuStr());
 
   // Web server routes
   server.on("/", handleRoot);
@@ -601,18 +579,17 @@ void setup()
   server.on("/history", handleHistory);
   server.begin();
   Serial.println("Web server aktif.");
-  Serial.println("Buka browser: http://localhost:8180");
+  Serial.println("Buka browser: http://" + WiFi.localIP().toString());
 }
 
 // ── Loop ───────────────────────────────────────────────────
 void loop()
 {
-  // Selalu jalankan client web server di setiap iterasi tanpa interupsi
   server.handleClient();
 
   unsigned long currentMillis = millis();
 
-  // 1. Pembacaan Sensor secara Periodik (Setiap 1 Detik)
+  // 1. Pembacaan Sensor setiap 1 detik
   if (currentMillis - prevSensorMillis >= sensorInterval)
   {
     prevSensorMillis = currentMillis;
@@ -634,20 +611,14 @@ void loop()
 
       String newStatus;
       if (distance < JARAK_BAHAYA)
-      {
         newStatus = "BAHAYA";
-      }
       else if (distance < JARAK_SIAGA)
-      {
         newStatus = "SIAGA";
-      }
       else
-      {
         newStatus = "NORMAL";
-      }
+
       Serial.println(newStatus);
 
-      // Logika Transisi Status & Notifikasi Telegram
       if (newStatus != "NORMAL" && prevStatus == "NORMAL")
       {
         mulaiEvent(newStatus, distance);
@@ -666,9 +637,7 @@ void loop()
         sendTelegram("⚠️ STATUS TURUN: SIAGA\nJarak: " + String(distance, 1) + " cm");
       }
       if (newStatus != "NORMAL")
-      {
         updateEventMaks(distance);
-      }
       if (newStatus == "NORMAL" && prevStatus != "NORMAL")
       {
         selesaiEvent();
@@ -680,22 +649,19 @@ void loop()
     }
   }
 
-  // 2. Kontrol LED Statis & Kedipan Buzzer (Non-Blocking)
+  // 2. Kontrol LED & Buzzer (Non-Blocking, tanpa tone())
   if (statusBanjir == "BAHAYA")
   {
     digitalWrite(LED_MERAH, HIGH);
     digitalWrite(LED_KUNING, LOW);
     digitalWrite(LED_HIJAU, LOW);
 
-    // Pola Bahaya: Bunyi 500ms, Mati 500ms
+    // Buzzer: bunyi 500ms, mati 500ms
     if (currentMillis - prevBuzzerMillis >= 500)
     {
       prevBuzzerMillis = currentMillis;
       buzzerState = !buzzerState;
-      if (buzzerState)
-        tone(BUZZER_PIN, 2000);
-      else
-        noTone(BUZZER_PIN);
+      digitalWrite(BUZZER_PIN, buzzerState ? HIGH : LOW);
     }
   }
   else if (statusBanjir == "SIAGA")
@@ -704,23 +670,20 @@ void loop()
     digitalWrite(LED_KUNING, HIGH);
     digitalWrite(LED_HIJAU, LOW);
 
-    // Pola Siaga: Bunyi 200ms, Mati 800ms
+    // Buzzer: bunyi 200ms, mati 800ms
     unsigned long interval = buzzerState ? 200 : 800;
     if (currentMillis - prevBuzzerMillis >= interval)
     {
       prevBuzzerMillis = currentMillis;
       buzzerState = !buzzerState;
-      if (buzzerState)
-        tone(BUZZER_PIN, 1000);
-      else
-        noTone(BUZZER_PIN);
+      digitalWrite(BUZZER_PIN, buzzerState ? HIGH : LOW);
     }
   }
-  else
-  { // NORMAL
+  else // NORMAL
+  {
     digitalWrite(LED_MERAH, LOW);
     digitalWrite(LED_KUNING, LOW);
     digitalWrite(LED_HIJAU, HIGH);
-    noTone(BUZZER_PIN);
+    digitalWrite(BUZZER_PIN, LOW);
   }
 }
