@@ -5,5 +5,5 @@ elf = ".pio/build/esp32dev/firmware.elf"
 diagram = "diagram.json"
 
 [[net.forward]]
-from = "localhost:8180"
-to = "target:80"
+from = ""
+to = ""
