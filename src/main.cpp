@@ -12,8 +12,8 @@
 #define LED_HIJAU 16
 #define BUZZER_PIN 15
 
-#define JARAK_BAHAYA 30
-#define JARAK_SIAGA 60
+#define JARAK_BAHAYA 6
+#define JARAK_SIAGA 12
 #define MAX_HISTORY 20
 
 // ── Konfigurasi WiFi ───────────────────────────────────────
@@ -582,7 +582,7 @@ void setup()
   Serial.println("Buka browser: http://" + WiFi.localIP().toString());
 }
 
-// ── Loop ───────────────────────────────────────────────────
+// ── Loop ──────────────────────────────────────────────────
 void loop()
 {
   server.handleClient();
